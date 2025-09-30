@@ -1,4 +1,5 @@
-﻿using Remote.Components;
+﻿using DG.Tweening;
+using Remote.Components;
 using UnityEngine;
 
 namespace Crane
@@ -35,11 +36,16 @@ namespace Crane
         public RemoteController RemoteController { get; set; } = null!;
 
         [field: SerializeField]
+        public AudioSource HookSound { get; set; } = null!;
+
+        [field: SerializeField]
         public Transform Crane { get; set; } = null!;
         [field: SerializeField]
         public Transform Wench { get; set; } = null!;
         [field: SerializeField]
         public Transform Hook { get; set; } = null!;
+        [field: SerializeField]
+        public Transform Tube { get; set; } = null!;
 
         private float _craneTargetSpeedZ;
         private float _wenchTargetSpeedX;
@@ -48,6 +54,8 @@ namespace Crane
         private float _craneSpeedZ;
         private float _wenchSpeedX;
         private float _hookSpeedY;
+
+        private bool _isHookMoving;
 
         private void Awake()
         {
@@ -74,6 +82,28 @@ namespace Crane
             MoveCrane(fixedDeltaTime);
             MoveWench(fixedDeltaTime);
             MoveHook(fixedDeltaTime);
+
+            HandleSound();
+        }
+
+        private void HandleSound()
+        {
+            if (Mathf.Approximately(_hookSpeedY, 0f)) {
+                if (_isHookMoving) {
+                    Tube.DOKill();
+                    Tube.rotation = Quaternion.Euler(0f, 0f, 0f);
+                    HookSound.Stop();
+                    _isHookMoving = false;
+                }
+                
+                return;
+            }
+            
+            if (!_isHookMoving) {
+                _isHookMoving = true;
+                Tube.DORotate(new(-180f, 0f, 0f), 1.5f).SetLoops(-1).Play();
+                HookSound.Play();
+            }
         }
 
         private void MoveCrane(float fixedDeltaTime)
@@ -120,42 +150,42 @@ namespace Crane
 
         private void OnUpPressed()
         {
-            Debug.LogWarning("Up pressed");
+            Debug.Log("Up pressed");
             _hookTargetSpeedY += UpMoveSpeed;
             _hookSpeedY = 0f;
         }
 
         private void OnDownPressed()
         {
-            Debug.LogWarning("Down pressed");
+            Debug.Log("Down pressed");
             _hookTargetSpeedY -= DownMoveSpeed;
             _hookSpeedY = 0f;
         }
 
         private void OnEastPressed()
         {
-            Debug.LogWarning("East pressed");
+            Debug.Log("East pressed");
             _wenchTargetSpeedX += RightMoveSpeed;
             _wenchSpeedX = 0f;
         }
 
         private void OnWestPressed()
         {
-            Debug.LogWarning("West pressed");
+            Debug.Log("West pressed");
             _wenchTargetSpeedX -= LeftMoveSpeed;
             _wenchSpeedX = 0f;
         }
 
         private void OnNorthPressed()
         {
-            Debug.LogWarning("North pressed");
+            Debug.Log("North pressed");
             _craneTargetSpeedZ += ForwardMoveSpeed;
             _craneSpeedZ = 0f;
         }
 
         private void OnSouthPressed()
         {
-            Debug.LogWarning("South pressed");
+            Debug.Log("South pressed");
             _craneTargetSpeedZ -= BackwardsMoveSpeed;
             _craneSpeedZ = 0f;
         }
