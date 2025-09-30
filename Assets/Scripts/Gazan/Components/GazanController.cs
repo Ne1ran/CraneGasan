@@ -103,6 +103,7 @@ namespace Gazan.Components
                     _currentGazanState = GazanState.Active;
                     DisplayAlpha = 0f;
                     MainScreenImage.DOFade(0.5f, 0.75f).Play();
+                    GasTextString = Math.Round(UnityEngine.Random.Range(0f, 100f), 1).ToString(CultureInfo.InvariantCulture);
                     return;
                 }
             }
